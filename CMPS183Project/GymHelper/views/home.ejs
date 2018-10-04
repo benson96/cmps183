@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Home</title>
+    <% include partials/header %>
+  </head>
+
+  <!-- Style  -->
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link href="https://fonts.googleapis.com/css?family=Bitter" rel="stylesheet">
+  <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+  <!-- End-Style  -->
+
+  <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>
+  <script src="js/initFirebase.js" ></script>
+  <script src="js/firebaseinfo.js" ></script>
+<% include partials/nav %>
+
+
+<head>
+  <!-- Welcome Gym App-->
+  <div class ="home">
+    <strong><i class="far fa-lightbulb"></i> Gym Helper</strong>
+    <p>A web app building for gym users.</p>
+    <!-- <a class="btn btn-primary btn-xl" href="login">SignUp</a> -->
+  </div>
+</head>
+
+<div class="home">
+  <h1 id="name"></h1>
+  <div id="sign-in-status"></div>
+  <div id="uid"></div>
+</div>
+<!-- Row of App Features -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-4 ">
+      <h2 class="home-Header">Meet Friends</h2>
+      <p>Group chat based on interest.</p>
+      <a class="btn btn-primary" href="chat" role="button"> View details>></a>
+    </div>
+    <div class="col-md-4">
+      <h2 class="home-Header">Leaderboard</h2>
+      <p>Challenge others.</p>
+      <a class="btn btn-primary" href="leaderboard" role="button">View details>></a>
+    </div>
+    <div class="col-md-4">
+      <h2 class="home-Header">Exercise Journal</h2>
+      <p>Check your progress frequently.</p>
+      <a class="btn btn-primary" href="journal" role="button">View details>></a>
+    </div>
+  </div>
+</div>
+<!-- Firebase-User-Auth -->
+<script>
+initApp = function() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var displayName = user.displayName;
+      var email = user.email;
+      var emailVerified = user.emailVerified;
+      var photoURL = user.photoURL;
+      var uid = user.uid;
+      var phoneNumber = user.phoneNumber;
+      var providerData = user.providerData;
+      console.log(uid)
+      user.getIdToken().then(function(accessToken) {
+  //document.getElementById('uid').textContent = uid;
+	document.getElementById('sign-in-status').textContent = 'Signed in';
+	document.getElementById('name').textContent = displayName;
+      });
+
+    } else {
+      // User is signed out.
+    }
+  }, function(error) {
+    console.log(error);
+  });
+};
+window.addEventListener('load', function() {
+  initApp()
+});
+</script>
+<!-- End-Firebase-User-Auth -->
+<% include partials/footer %>

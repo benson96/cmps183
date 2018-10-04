@@ -1,0 +1,172 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<!-- <script src="{{=URL('static', 'js/vue.js')}}"></script> -->
+<script>
+    function replaceAll(str, find, replace) {
+        return str.replace(new RegExp(find, 'g'), replace);
+    }
+    String.prototype.capitalize = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
+    var logged_in = {{=logged_in}};
+    var email = "{{=email}}";
+    var user_id = "{{=user_id}}";
+    var user_list_json = "{{=user_list_json}}"
+    var user_list = JSON.parse(replaceAll(user_list_json, '&quot;', '"'))
+    var add_image_url = "{{=URL('api', 'add_image')}}";
+    var get_user_images_url = "{{=URL('api', 'get_user_images')}}";
+    var update_image_url = "{{=URL('api', 'update_image')}}";
+    var purchase_url = "{{=URL('api', 'purchase')}}";
+</script>
+<style media="screen">
+.b {
+  /* border: grey solid 1px; */
+}
+.img_box {
+    transition: all 0.5s;
+}
+.img_box:hover {
+    cursor: pointer;
+    box-shadow: 3px 3px 10px #888888;
+}
+.tran {
+    transition: all 0.5s;
+}
+</style>
+
+
+{{end}}
+<div id="vue-div" class="display:none">
+  <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+
+  <v-app>
+    <!-- Side Bar -->
+    <!-- <v-navigation-drawer app></v-navigation-drawer> -->
+
+    <!-- Tool Bar -->
+    <!-- <v-toolbar app></v-toolbar> -->
+
+    <!-- Page Content -->
+    <v-content>
+      <v-container>
+        <v-layout row wrap>
+          <v-flex xs12>
+            <v-layout row wrap>
+              <v-flex xs9 class="b px-1">
+                <v-layout row wrap class="elevation-3" style="min-height: 200px;">
+                  <v-flex xs3 v-for="(img, i) in show_img_list" :key="i" class="b" v-if="i < 20">
+                    <v-card rounded flat class="ma-2 pa-2"
+                            style="height: 280px; overflow: hidden;"
+                            color="blue-grey lighten-3 img_box"
+                            @click.native="editPrice(img)">
+                      <v-card-media
+                        contain
+                        :height="edit_id!=img.id ? '200px' : '120px'"
+                        class="tran"
+                        :src="img.image_url">
+                      </v-card-media>
+                      <div class="title white--text text-xs-center" v-if="edit_id!=img.id">Price: ${img.price}</div>
+                      <div class="text-xs-center px-2 ma-0" v-else>
+                        <v-layout row wrap>
+                          <v-flex xs12>
+                            <v-text-field v-model="edit_price" box label="Price"></v-text-field>
+                          </v-flex>
+                        </v-layout>
+                      </div>
+                      <v-layout row wrap v-if="edit_id!=img.id">
+                        <v-flex xs6 class="text-xs-left">
+                          <v-btn icon @click.stop="select(img)"><v-icon>fa-shopping-cart</v-icon></v-btn>
+                        </v-flex>
+                        <v-flex xs6 class="text-xs-right tran" v-show="isSelected(img)">
+                          <v-icon color="blue" class="pt-2 mt-1 pr-2 mr-1">fa-check</v-icon>
+                        </v-flex>
+                      </v-layout>
+                      <v-layout row wrap v-else>
+                        <v-flex xs6 class="text-xs-left">
+                          <v-btn icon @click.stop="edit_id=null; update_image(img.id);"><v-icon color="blue">save</v-icon></v-btn>
+                        </v-flex>
+                        <v-flex xs6 class="text-xs-right tran">
+                          <v-btn icon @click.stop="edit_id=null"><v-icon color="red">delete</v-icon></v-btn>
+                        </v-flex>
+                      </v-layout>
+                    </v-card>
+                  </v-flex>
+                  <v-flex xs12 class="b text-xs-center my-2" v-if="selected_user.id == user_id">
+                    <span v-if="loading">
+                      <v-progress-circular :width="3" indeterminate color="red"></v-progress-circular>
+                    </span>
+                    <span v-else>
+                      <v-btn icon fab large color="purple lighten-4" @click="!is_uploading ? open_uploader() : close_uploader()">
+                        <v-icon v-if="!is_uploading">add</v-icon>
+                        <v-icon v-else="is_uploading">clear</v-icon>
+                      </v-btn>
+                      <div id="uploader_div" style="display:none" class="px-5">
+                        Upload an image file: !!
+                        <input id="file_input" type="file" @change="fileChange($event)" accept="image/jpeg">
+                        <v-text-field v-model="price" box label="Price"></v-text-field>
+                        <v-btn @click="upload_file" color="pink">Submit</v-btn>
+                      </div>
+                    </span>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex xs3 class="b px-1 text-xs-center">
+                <v-btn color="pink lighten-4" block large @click="cartDialog = true">checkout</v-btn>
+                <v-list class="elevation-3">
+                  <span v-for="(user, i) in user_list" :key="i">
+                    <v-list-tile @click="selected_user = user">
+                      <v-list-tile-action>
+                        <v-icon color="pink">star</v-icon>
+                      </v-list-tile-action>
+                      <v-list-tile-content>
+                        <v-list-tile-title>
+                          ${(user.first_name.capitalize() + ' ' + user.last_name.capitalize())}
+                        </v-list-tile-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                    <v-divider></v-divider>
+                  </span>
+                </v-list>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+
+        <v-dialog v-model="cartDialog" persistent max-width="400">
+          <v-card>
+            <v-card-title class="headline">Shopping Cart</v-card-title>
+            <v-layout row wrap>
+              <v-flex xs4 v-for="img in selected_imgs" :key="img.id" class="text-xs-center">
+                <div class="orange lighten-2" style="height: 180px">
+                  <img :src="img.image_url" :key="img.id" alt="" width="100px">
+                  <br>
+                  ${'$' + img.price}
+                </div>
+              </v-flex>
+            </v-layout>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="green darken-1" flat @click.native="cartDialog = false">Cancel</v-btn>
+              <v-btn color="green darken-1" flat @click.native="cartDialog = false; pay()">Proceed</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-snackbar
+          :timeout="4000"
+          top
+          right
+          v-model="snackbar">
+          Thank you for your purchase!
+          <v-btn flat color="pink" @click.native="snackbar = false">Close</v-btn>
+        </v-snackbar>
+
+      </v-container>
+    </v-content>
+
+  </v-app>
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

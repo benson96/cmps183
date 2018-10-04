@@ -1,0 +1,70 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+    var add_image_api_url = "{{=URL('api', 'add_image', user_signature=True)}}";
+    var get_user_images_api_url = "{{=URL('api', 'get_images')}}";
+    var get_users_api_url = "{{=URL('api', 'get_site_users')}}";
+</script>
+
+
+{{end}}
+
+<div class="main_content">
+
+  <div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+
+    <div class="container padded">
+
+      <img v-if="show_img" v-bind:src="img_url" />
+
+      <div class="image_space threequarters">
+        <!-- Left part of the page -->
+        <div v-if="!active_images_user_id">
+          <h5>Log in to view your user profile or click on a selection on the right to view that user's images!</h5>
+        </div>
+
+        <div v-if="self_page">
+          <!-- Code to upload files, with control buttons -->
+          <div id="uploader_div" style="display:none">
+            Upload an image file: <input id="file_input" type="file" v-on:change="upload_file" accept="image/jpeg">
+          </div>
+
+          <button v-if="!is_uploading" v-on:click="open_uploader"><i class="fa fa-plus"></i></button>
+          <button v-if="is_uploading"  v-on:click="close_uploader">Cancel</button>
+        </div>
+
+        <div class="image_container">
+          <ul class="container">
+            <li v-for="image in user_images" class="card lifted padded quarter">
+              <img v-bind:src="image.image_src" height="200px" width="200px" class="padded"/>
+            </li> 
+          </ul>
+        </div>
+      </div>
+
+      <div class="user_space quarter right">
+        <!-- Right part of the page -->
+        <table class="fill" id="user_selector">
+          <tbody v-for="user in user_list">  
+            <tr class="center">
+              <!-- This row is you; code for getting your own images, and for setting self_page -->
+                
+              <td v-on:click=get_user_images(user.id)>
+                  ${user.firstname + " " + user.lastname}
+              </td>
+            </tr>
+            <!-- Then, one row for each person. -->
+          </tbody>
+        </table>
+
+      </div>
+
+  </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

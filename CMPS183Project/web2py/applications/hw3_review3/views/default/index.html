@@ -1,0 +1,113 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+    var memos_url = "{{=URL('api', 'get_memos')}}";
+	var add_memo_url = "{{=URL('api', 'add_memo', user_signature=True)}}"
+	var del_memo_url = "{{=URL('api', 'del_memo', user_signature=True)}}"
+	var edit_memo_url = "{{=URL('api', 'edit_memo', user_signature=True)}}"
+	var toggle_public_url = "{{=URL('api', 'toggle_public', user_signature=True)}}"
+    var edit_toggle_url = "{{=URL('api', 'edit', user_signature=True)}}"
+</script>
+{{end}}
+
+<div class="main_content">
+
+    <div id="vue-div" class="display:none">
+        <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+		
+		<div class="button_bar">
+			<button v-if="!is_adding_memo" class="btn btn-danger btn-sm" v-on:click="add_memo_button()" v-bind:class="{'disabled': !logged_in}">
+            <i class="icon_add"></i>Add Memo
+            </button>
+            <button v-if="is_adding_memo" class="btn btn-warning btn-sm" v-on:click="add_memo_button()">
+            <i class="icon_cancel"></i>Cancel
+            </button>
+		</div>
+		
+		<div v-if="is_adding_memo" id="add_memo_div">
+            <form action="#" v-on:submit.prevent="add_memo" class="form-horizontal" enctype="multipart/form-data" method="post">
+                <div class="form-group" id="no_table_title__row">
+                    <div>
+                        <input class="form-control string" id="no_table_title" v-model="form_title" placeholder="Title" type="text" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group" id="no_table_memo__row">
+                    <div>
+                        <input class="form-control string" id="no_table_memo" v-model="form_memo" placeholder="Memo" type="text" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group" id="submit_record__row">
+                    <div>
+                        <input class="btn btn-primary" id="add_memo_submit" type="submit" value="Submit" />
+                    </div>
+                </div>
+            </form>
+        </div>
+		
+        
+        
+        
+        
+        <div class="result_table">
+        <div class="memo" v-for="memo in memos" v-if="memo.is_public || memo.user_email === current_login">
+            <div class="memo_text">
+                <div class="memo_title">${memo.title}</div>
+                <div class="memo_content">${memo.memo}</div>
+            </div>
+            <div>
+              <div class="button_list">
+                <div class="buttons">
+                    
+                    <span v-if="!memo.editing">
+                        <i class="fa fa-edit fa-lg" v-if="!memo.editing" v-on:click="edit_memo_button(memo.id, true)" v-bind:class="{'disabled': !logged_in || memo.user_email !== current_login}"></i>
+                    </span>
+                    <button v-if="memo.editing" class="btn btn-warning btn-sm" v-on:click="edit_memo_button(memo.id, false)">
+                        <i class="icon_cancel"></i>Cancel
+                    </button>
+                    
+                    
+                
+                    <div v-if="memo.editing">
+                        <input v-model="form_title" placeholder="Title" type="text" />
+                        
+                        <input v-model="form_memo" placeholder="Memo" type="text" />
+                        
+                        <button class="btn rounded" v-on:click="edit_toggle(memo.id, false)">Save</button>
+                    </div>
+                    
+                    
+                    
+                    <i class="fa fa-trash fa-lg" v-on:click="delete_memo(memo.id)" v-bind:class="{'disabled': !logged_in || memo.user_email !== current_login}"></i>
+                    
+                    <span v-on:click="toggle_public(memo.id)" v-bind:class="{'disabled': !logged_in || memo.user_email !== current_login}">
+                        <i v-if="!memo.is_public" class="fa fa-user" v-bind:class="{'disabled': !logged_in}"></i>
+                        <i v-if="memo.is_public" class="fa fa-users" v-bind:class="{'disabled': !logged_in}"></i>
+                    </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="has_more" class="show_more">
+                <button class="btn btn-default" v-on:click="get_more()">Load more</button></div>
+            </div>
+        
+        
+        
+        
+        
+        
+        
+		
+     
+     
+     
+		
+    </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

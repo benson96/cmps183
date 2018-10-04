@@ -1,0 +1,116 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+{{end}}
+
+<div class="main_content">
+
+  <!-- Here goes your main HTML code. -->
+  {{if auth.user is not None:}}
+
+  <div class="add_btn">
+    <a class="btn red rounded" href="{{=URL('default', 'add')}}"><i class="fa fa-plus"></i> Add</a>
+  </div>
+
+  {{for cl in checklists:}}
+  <div class="memo">
+    <div class="memo_text">
+      <div class="memo_title">{{=cl.title}}</div>
+      <div class="memo_content">{{=cl.memo}}</div>
+    </div>
+    <div>
+      <div class="button_list">
+        <div class="buttons">
+          <a class="btn rounded" href="{{=URL('default', 'edit', args=[cl.id])}}">
+            <i class="fa fa-edit fa-lg"></i>
+          </a>
+
+
+
+          <!-- Added buttons -->
+          {{if cl.is_public == True:}} 
+          <a class = "btn rounded" href="{{=URL('default', 'toggle', args=[cl.id], user_signature=True)}}"> 
+            <i class="fa fa-users"></i>
+          </a>
+          {{else:}}
+          <a class = "btn rounded" href="{{=URL('default', 'toggle', args=[cl.id], user_signature=True)}}"> 
+            <i class="fa fa-user"></i>
+          </a>
+          {{pass}}
+
+
+
+          <a class="btn rounded red" href="{{=URL('default', 'delete', args=[cl.id], user_signature=True)}}">
+            <i class="fa fa-trash fa-lg"></i>
+          </a>
+
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {{pass}}  
+
+  <h4>Other Public Posts:</h4>
+  {{for c in all_authors:}}
+
+  <!--This is a subsitute: if c.is_public == True and c.user_email != auth.user.email -->
+  {{if c.is_public == True :}} 
+
+  <div class="memo">
+    <div class="memo_text">
+      <div class="memo_title">{{=c.title}}</div>
+      <div class="memo_content">{{=c.memo}}</div>
+    </div>
+    <div>
+    </div>
+  </div>
+
+  {{pass}}
+  {{pass}}
+
+  {{if not checklists:}}
+
+  <p>You don't have any checklist.  Press on the Add button above to create one.</p>
+
+  {{pass}}
+
+  {{else:}}
+  <h1 class="main_title">Welcome!</h1>
+  <p class="explanation">This site will help you organize your life by storing your checklists.
+  Please log in to use it.</p>
+
+  <div class="login_button">
+    <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
+  </div>
+  <h4>Public Posts:</h4>
+  {{for c in all_authors:}}
+
+  {{if c.is_public == True:}} 
+
+  <div class="memo">
+    <div class="memo_text">
+      <div class="memo_title">{{=c.title}}</div>
+      <div class="memo_content">{{=c.memo}}</div>
+    </div>
+        <div>
+      <div class="button_list">
+        <div class="buttons">
+
+          <!-- Added buttons -->
+          <a class = "btn gray rounded"> 
+            <i class="fa fa-users"></i>
+          </a>
+          <a class="btn gray rounded">
+            <i class="fa fa-trash fa-lg"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{pass}}
+  {{pass}}
+  {{pass}}
+</div>

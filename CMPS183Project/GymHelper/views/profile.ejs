@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Profile</title>
+    <% include partials/header %>
+  </head>
+
+  <!-- Style  -->
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link href="https://fonts.googleapis.com/css?family=Bitter" rel="stylesheet">
+  <!-- End-Style  -->
+  <% include partials/nav %>
+
+
+  <p id="name"></p>
+  <div class="page">
+    <p>&nbsp;</p>
+    <!-- User Achievement Box-->
+    <div class="box">
+    <table class="head">
+      <tr>
+        <td rowspan="2">
+            <img id ="profile_pic"  class="profile" alt ="profile_picture" width=100px />
+        </td>
+        <td>
+          <h2 id="firstName"></h2>
+        </td>
+      </tr>
+      <tr>
+          <td>
+            <p id="achievementExercise">Achievement&nbsp;&nbsp;&nbsp;</p>
+          </td>
+          <td>
+              <img id="achievementLevel" class="leaderboard_rank_icon" title ="achievement-medal-icon"/>
+              <p ></p>
+          </td>
+      </tr>
+    </table>
+    </div>
+    <!-- End-User Achievement Box-->
+    <!-- Display Info -->
+    <div class="key_profiles">
+      <div class="key_profile">
+        <img class="profile_label" src="/images/age.png" />
+        <p id="age"></p>
+      </div>
+      <div class="key_profile">
+          <img class="profile_label" src="/images/gender.svg" />
+        <p id="gender"></p>
+      </div>
+      <div class="key_profile">
+          <img class="profile_label" src="/images/height.png" />
+        <p id="height"></p>
+      </div>
+      <div class="key_profile">
+          <img class="profile_label" src="/images/weight.png" />
+        <p id="weight"></p>
+      </div>
+    </div>
+    <!--End-Display Info -->
+    <!-- Leaderboard -->
+    <form method="post" action="/leaderboard" class="profile_leaderboard">
+      <input name="userid" type="hidden" id="uid2">
+      <table>
+        <tr>
+          <td>
+              <p>&nbsp;&nbsp;</p>
+          </td>
+          <td>
+            <button class="button2" type="submit" class="nav-link" href="leaderboard">
+              <img src="/images/lb.png" title ="leaderboard-icon" class="icon" />
+              <p id="leaderboard">Exercise Leaderboard:&nbsp;&nbsp;</p>
+            </button>
+          </td>
+          <td>
+              <p>&nbsp;&nbsp;</p>
+          </td>
+          <td>
+            <select class="profile_choose_exercise" name="exercise" class="custom-select mr-sm-1" id="inlineFormCustomSelect">
+                <optgroup>
+                  <option value="pushups">Pushups</option>
+                  <option value="pullups">Pullups</option>
+                  <option value="situps">Situps</option>
+                  <option value="running">Running</option>
+                  <option value="swimming">Swimming</option>
+                  <option value="walking">Walking</option>
+                </optgroup>
+              </select>
+            </td>
+          </tr>
+        </table>
+      </form>
+      <!-- End-Leaderboard -->
+  </div>
+  <!-- Firebase Auth -->
+  <script>
+  initApp = function() {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in.
+        var username = user.displayName;
+        var email = user.email;
+        var uid = user.uid;
+        console.log(uid)
+        document.getElementById('uid').textContent = uid;
+        firebase.database().ref('users/'+ uid).update({
+          username: username,
+          email: email
+        })
+      } else {
+        // User is signed out.
+      }
+    }, function(error) {
+      console.log(error);
+    });
+  };
+  window.addEventListener('load', function() {
+    initApp()
+  });
+  </script>
+  <script>
+  initApp = function() {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in.
+        var displayName = user.displayName;
+        var uid = user.uid;
+        user.getIdToken().then(function(accessToken) {
+          document.getElementById('uid2').value = uid;
+        });
+
+        firebase.database().ref('users/' + uid ).once('value').then(function(snapshot) {
+          profileImg = snapshot.child('profile_picture').val();
+
+          document.getElementById("profile_pic").src = profileImg;
+          console.log(profileImg);
+          });
+
+
+        firebase.database().ref('users/' + uid + '/profile').once('value').then(function(snapshot) {
+          address = snapshot.child('address').val();
+          age = snapshot.child('age').val();
+          firstName = snapshot.child('firstName').val();
+          gender = snapshot.child('gender').val();
+
+          document.getElementById("age").innerHTML = age;
+          document.getElementById("gender").innerHTML = gender;
+          document.getElementById("firstName").innerHTML = firstName;
+
+          console.log(age);
+        });
+
+        firebase.database().ref('users/' + uid +'/profile/bodyinfo').once('value').then(function(snapshot) {
+          height = snapshot.child('height').val();
+          weight = snapshot.child('weight').val();
+
+          document.getElementById("height").innerHTML = height + " cm";
+          document.getElementById("weight").innerHTML = weight + " kg";
+
+        });
+        var achievementRef = firebase.database().ref('users/' + uid + '/achievements');
+        var indexOfAchievement = 0;
+        achievementRef.orderByValue().once('value').then(function(snapshot) {
+          snapshot.forEach(function(data) {
+            indexOfAchievement = indexOfAchievement + 1;
+            var achievementExerciseType = data.key;
+            var achievementExerciseLevel = data.val();
+
+            console.log("2Achievenment of " + data.key);
+            console.log("2level" + data.val());
+
+            document.getElementById('achievementExercise').textContent = "Achievenment of " + achievementExerciseType + ": ";
+            var achievementIconSrc = "/images/medal/arm.jpg";
+
+            if (achievementExerciseLevel == 0) {
+              achievementIconSrc = "/images/medal/arm.jpg";
+            }
+            else if (achievementExerciseLevel == 1) {
+              achievementIconSrc = "/images/medal/copper_medal.png";
+            }
+            else if (achievementExerciseLevel == 2) {
+              achievementIconSrc = "/images/medal/silver_medal.png";
+            }
+            else if (achievementExerciseLevel == 3) {
+              achievementIconSrc = "/images/medal/gold_medal.png";
+            }
+            else if (achievementExerciseLevel == 4) {
+              achievementIconSrc = "/images/medal/plat_medal.jpg";
+            }
+            else if (achievementExerciseLevel == 5) {
+              achievementIconSrc = "/images/medal/diamond_medal.png";
+            }
+
+            document.getElementById('achievementLevel').src = achievementIconSrc;
+          });
+        });
+
+      } else {
+        console.log('user is signed out');
+        // User is signed out.
+      }
+    }, function(error) {
+      console.log(error);
+    });
+  };
+
+  window.addEventListener('load', function() {
+    initApp()
+  });
+  </script>
+  <!-- End-Firebase Auth -->
+<%include partials/footer%>

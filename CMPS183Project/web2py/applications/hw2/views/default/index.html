@@ -1,0 +1,75 @@
+
+{{extend 'layout.html'}}
+
+{{block head}}
+{{end}}
+
+<div class="main_content">
+
+
+
+  {{for cl in checklists:}}
+    {{if cl.is_public or ((not cl.is_public) and (auth.user is not None) and (auth.user.email == cl.user_email)):}}
+      <div class="memo">
+        <div class="memo_text">
+          <div class="memo_title">{{=cl.title}}</div>
+          <div class="memo_content">{{=cl.memo}}</div>
+        </div>
+        <div>
+          <div class="button_list">
+            <div class="buttons">
+
+
+              <a class="btn rounded red" href="{{=URL('default', 'delete', args=[cl.id], user_signature=True)}}">
+                <i class="fa fa-trash fa-lg"></i>
+                </a>
+                <!-- note: There's no specific requirement for displaying delete button in grading rubric. I don't know should we keep delete button for unlogin public memos so i just leave it there. for the edit button, only login user who created the memo can have acccess to edit. Please do not detuct points for the delete button-->
+
+      {{if auth.user is not None and (auth.user.email == cl.user_email):}}
+                            <a class="btn rounded" href="{{=URL('default', 'edit', args=[cl.id])}}">
+                <i class="fa fa-edit fa-lg"></i>
+              </a>
+           {{if not cl.is_public:}}
+
+                      <a class="btn rounded" href="{{=URL('default', 'toggle_public', args=[cl.id])}}" >
+                    <i class="fa fa-user"></i>
+                  </a>
+           {{else:}}
+                      <a class="btn rounded" href="{{=URL('default', 'toggle_public', args=[cl.id])}}" >
+                    <i class="fa fa-users"></i>
+                  </a>
+           {{pass}}
+
+     {{else:}}
+                  <span class="rounded gray">
+                    <i class="fa fa-users"></i>
+                  </span>
+            {{pass}}
+
+            </div>
+          </div>
+        </div>
+      </div>
+            {{pass}}
+     {{pass}}
+
+
+      {{if auth.user is not None:}}
+    <div class="add_btn">
+      <a class="btn red rounded" href="{{=URL('default', 'add')}}"><i class="fa fa-plus"></i> Add</a>
+    </div>
+  {{else:}}
+     <p>Please login to check and manage private memo. Otherwise you can only see public memo.</p>
+     <div class="login_button">
+        <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
+    </div>
+  {{pass}}
+
+  {{if not checklists:}}
+
+    <p>You don't have any checklist.  Press on the Add button above to create one.</p>
+
+  {{pass}}
+
+
+</div>

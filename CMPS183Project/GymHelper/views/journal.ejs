@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include partials/header %>
+    <title>User Journal</title>
+  </head>
+
+  <!-- Style  -->
+  <link rel="stylesheet" href="/css/nav.css">
+  <!-- End-Style  -->
+
+  <body>
+    <div class="page">
+      <% include partials/nav %>
+
+<!-- sets section -->
+      <p>&nbsp;</p>
+      <form class="mainBody" method="post" action="/updatejournal">
+        <div class="form-row align-items-center">
+          <div class="sub-body">
+            <div class="col-auto my-1">
+              <img src="/images/exercise.jpg" id="exercise" title ="exercise_picture" width=70px />
+              <label class="large-text" class="ex" class="mr-sm-2" for="inlineFormCustomSelect">Strength Training &nbsp;</label>
+              <select id="select-exercise"class="mid-text" name="exercise" class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                  <optgroup>
+                    <option value="pushups">Pushups</option>
+                    <option value="pullups">Pullups</option>
+                    <option value="situps">Situps</option>
+                  </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div class="sub-body">
+            <div class="form-row">
+              <div class="col">
+                <input name="sets" type="text" class="form-control" placeholder="Sets">
+              </div>
+              <div class="col">
+                <input name="reps" type="text" class="form-control" placeholder="Repetitions">
+              </div>
+            </div>
+          </div>
+          <div class="sub-body">
+            <input name="userid" type="hidden" class="form-control" id="uid" >
+            <input name="displayName" type="hidden" class="form-control" id="displayName">
+            <button class="submit-button" type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+
+<!-- distance section -->
+      <form class="mainBody" method="post" action="/updatejournal2">
+        <div class="form-row align-items-center">
+          <div class="sub-body">
+            <div class="col-auto my-1">
+              <img src="/images/aerobic_exercise.png" id="exercise" title ="exercise_picture" width=70px />
+              <label class="large-text" class="ex" class="mr-sm-2" for="inlineFormCustomSelect">Aerobic Exercise &nbsp;</label>
+              <select id="select-exercise"class="mid-text" name="exercise" class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                  <optgroup>
+                    <option value="running">Running</option>
+                    <option value="swimming">Swimming</option>
+                    <option value="walking">Walking</option>
+                  </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div class="sub-body">
+            <div class="form-row">
+              <div class="col">
+                <input name="miles" type="text" class="form-control" placeholder="miles">
+              </div>
+              <div class="col">
+                <input name="Hours" type="text" class="mr-sm-2" class="form-control" placeholder="Hours">
+                <input name="Minutes" type="text" class="mr-sm-2" class="form-control" placeholder="Minutes">
+              </div>
+            </div>
+          </div>
+          <div class="sub-body">
+            <input name="userid" type="hidden" class="form-control" id="uid2" >
+            <input name="displayName" type="hidden" class="form-control" id="displayName2">
+            <button class="submit-button" type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+<!-- Firebase Auth -->
+    <script>
+    initApp = function() {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          // User is signed in.
+          var displayName = user.displayName;
+          var email = user.email;
+          var emailVerified = user.emailVerified;
+          var photoURL = user.photoURL;
+          var uid = user.uid;
+          var phoneNumber = user.phoneNumber;
+          var providerData = user.providerData;
+          console.log(uid)
+          user.getIdToken().then(function(accessToken) {
+            document.getElementById('uid').value = uid;
+            document.getElementById('displayName').value = displayName;
+            document.getElementById('displayName2').value = displayName;
+            document.getElementById('uid2').value = uid;
+          });
+
+        } else {
+          // User is signed out.
+        }
+      }, function(error) {
+        console.log(error);
+      });
+    };
+    window.addEventListener('load', function() {
+      initApp()
+    });
+    </script>
+    <!-- End-Firebase Auth -->
+
+<% include partials/footer %>

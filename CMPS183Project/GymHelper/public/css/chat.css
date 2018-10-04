@@ -1,0 +1,20 @@
+.btn{
+  overflow: none;
+  background: #31263e;
+  color: white;
+  border-radius: 25px;
+}
+
+.chatImg{
+  border-radius: 25px;
+  height: 128px;
+  width: 128px;
+}
+
+.chatGroupText{
+  width: 128px;
+  text-align: center;
+}
+#chatPanel{
+  background-color:#ee5622;
+}

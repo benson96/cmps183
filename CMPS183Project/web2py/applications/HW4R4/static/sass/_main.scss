@@ -1,0 +1,32 @@
+.colorful {
+  color: $clrHilight;
+}
+
+div.main_content {
+  padding: 10px;
+}
+
+table#user_selector {
+  border: 1px solid gray;
+  font-size: 1.5em;
+  
+  tbody tr {
+    border-bottom: 1px solid gray;
+  }
+  
+  tr {
+    cursor: pointer;
+    
+    .selected_user {
+      background-color: #fbf6d9;
+    }
+  }
+}
+
+button:disabled {
+  background-color: lightgray;
+  &:hover {
+    box-shadow: none;
+  }
+}
+

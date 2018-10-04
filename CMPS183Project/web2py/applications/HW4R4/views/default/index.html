@@ -1,0 +1,94 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  // Define your URLs here.
+  var image_upload_url = "{{=URL('api', 'set_image_url', user_signature=True)}}";
+  var image_get_url = "{{=URL('api', 'get_user_imaes')}}";
+  var user_list_url = "{{=URL('api', 'get_user_list')}}";
+  
+  // Save the currently logged in user, if they exist
+  {{if (auth.user is not None):}}
+    var logged_in_user = {
+      id: {{=auth.user.id}},
+      first_name: "{{=auth.user.first_name}}",
+      last_name: "{{=auth.user.last_name}}"
+    } 
+  {{else:}}
+    var logged_in_user = null;
+  {{pass}}
+</script>
+
+{{end}}
+
+<div class="main_content">
+
+  <div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+    
+    <!-- Show sign up notice when not logged in -->
+    <div v-if="!logged_in_user" class="container padded">
+      <h2>Create an Account to Upload Your Own Images</h2>
+      <p>You can view user's images by clicking on a user name to the right.</p>
+    </div>
+    
+    <!-- Main content -->
+    <div class="container padded">
+
+      <div class="image_space threequarters">
+        <!-- Left part of the page -->
+        <div v-if="self_page">
+          <!-- Code to upload files, with control buttons -->
+          <div id="uploader_div" style="display:none">
+            Upload an image file: <input id="file_input" type="file" accept="image/jpeg">
+            Set the price:<input id="price_input" type="number" step="any" min="0">
+          </div>
+
+          <button v-if="!is_uploading" v-on:click="open_uploader"><i class="fa fa-plus"></i></button>
+          <button v-if="is_uploading" v-on:click="upload_file">Submit</button>
+          <button v-if="is_uploading"  v-on:click="close_uploader">Cancel</button>
+        </div>
+
+        <div class="image_container">
+          <ul class="container">
+            <!-- Display user images -->
+            <li v-for="image in user_images" class="card lifted padded quarter">
+              <img v-bind:src="image.image_url" class="padded"/>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="user_space quarter right">
+        <!-- Right part of the page -->
+        <table class="fill" id="user_selector">
+          <tbody>
+            <!-- Logged in user -->
+            <tr v-if="logged_in_user"
+                v-on:click="get_user_images(logged_in_user.id)"
+                class="center">
+              <td v-bind:class="{selected_user: logged_in_user.id == current_user}">
+                ${logged_in_user.first_name} ${logged_in_user.last_name}
+              </td>
+            </tr>
+            
+            <!-- One row for each other person. -->
+            <tr v-for="user in user_list">
+              <td v-if="!logged_in_user || user.id != logged_in_user.id"
+                  v-on:click="get_user_images(user.id)"
+                  v-bind:class="{selected_user: user.id == current_user}">
+                  ${user.first_name} ${user.last_name}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
+  </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

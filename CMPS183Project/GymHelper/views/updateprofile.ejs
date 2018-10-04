@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Information</title>
+    <% include partials/header %>
+  </head>
+
+<!-- Style  -->
+<link rel="stylesheet" href="/css/nav.css">
+<link href="https://fonts.googleapis.com/css?family=Bitter" rel="stylesheet">
+<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<!-- End-Style  -->
+
+  <% include partials/nav %>
+      <!--data input  -->
+  <div class="page">
+    <p>&nbsp;</p>
+    <form class="mainBody" method="post" action="/updateInformation">
+      <div class="sub-body">
+        <div class="form-row">
+          <div class="col">
+            <input name="first" type="text" class="form-control" placeholder="First name">
+          </div>
+          <div class="col">
+            <input name="last" type="text" class="form-control" placeholder="Last name">
+          </div>
+          <div class="col">
+            <input name="age" type="text" class="form-control" placeholder="Age">
+          </div>
+          <div class="col">
+            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="gender">
+              <option selected>Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputAddress">Address</label>
+          <input name="address" type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label for="inputCity">City</label>
+            <input name="city" type="text" class="form-control" id="inputCity">
+          </div>
+          <div class="form-group col-md-4">
+            <label for="inputCity">State</label>
+            <input name="state" type="text" class="form-control" id="inputCity">
+          </div>
+          <div class="form-group col-md-2">
+            <label for="inputZip">Zip</label>
+            <input name="zip" type="value" class="form-control" id="inputZip">
+          </div>
+          <div class="form-group col-md-2">
+            <input name="userid" type="hidden" id="uid">
+            <button class="submit-button" type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </div>
+  </form>
+</div>
+<!-- End data input -->
+
+<!-- Firebase Auth  -->
+<script>
+initApp = function() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var displayName = user.displayName;
+      var email = user.email;
+      var emailVerified = user.emailVerified;
+      var photoURL = user.photoURL;
+      var uid = user.uid;
+      var phoneNumber = user.phoneNumber;
+      var providerData = user.providerData;
+      console.log(uid)
+      user.getIdToken().then(function(accessToken) {
+        document.getElementById('uid').value = uid;
+      });
+
+    } else {
+      // User is signed out.
+    }
+  }, function(error) {
+    console.log(error);
+  });
+};
+window.addEventListener('load', function() {
+  initApp()
+});
+</script>
+<!-- End Firebase Auth -->
+<% include partials/footer %>

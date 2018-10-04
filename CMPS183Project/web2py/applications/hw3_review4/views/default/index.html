@@ -1,0 +1,106 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+    var checklists_url = "{{=URL('api', 'get_checklists')}}";
+    var add_checklist_url = "{{=URL('api', 'add_checklist', user_signature=True)}}";
+    var edit_checklist_url = "{{=URL('api', 'edit_checklist', user_signature=True)}}";
+    var del_checklist_url = "{{=URL('api', 'del_checklist', user_signature=True)}}";
+    var toggle_public_url = "{{=URL('api', 'toggle_public', user_signature=True)}}";
+
+
+</script>
+{{end}}
+
+<div class="main_content">
+
+    <div id="vue-div" class="display:none">
+
+        <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+        {{if auth.user:}}
+        <div class="button_bar">
+            <button v-if="!is_adding_checklist" class="fa fa-plus" v-on:click="add_checklist_button()">
+                Add
+            </button>
+
+            <button v-if="is_adding_checklist" class="fa fa-close" v-on:click="add_checklist_button()">
+                Cancel
+            </button>
+        </div>
+
+        <div v-if="is_adding_checklist" id="add-new-checklist">
+                <textarea v-model="form_title" placeholder="Title"
+                          type="text"></textarea>
+            <textarea v-model="form_memo" placeholder="Memo"
+                      type="text"></textarea>
+            <span class="help-block"></span>
+            <div>
+                <button class="fa fa-check" v-on:click="add_checklist()">
+                    Submit
+                </button>
+            </div>
+        </div>
+
+        {{else:}}
+        <div class="notloggedin">You must sign in to add a memo, the following are public checklists.</div>
+        {{pass}}
+        <div v-for="checklist in checklists">
+            <div class="checklist">
+                <div v-if="editing && edit_id==checklist.id">
+                    <div class="editinggroup">
+                        <div>
+                                <textarea
+                                        v-model="edit_title = checklist.title" placeholder="Title"
+                                        type="text"></textarea>
+                            <textarea
+                                    v-model="edit_memo = checklist.memo" placeholder="Memo"
+                                    type="text"></textarea>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="editbuttons">
+                        <button v-if="editing" class="fa fa-close"
+                                v-on:click="cancel_edit()" type="button">
+                            Cancel
+                        </button>
+                        <button v-if="editing" class="fa fa-check"
+                                v-on:click="edit_checklist_submit()" type="submit">
+                            Submit
+                        </button>
+                    </div>
+
+
+                </div>
+                <div v-if="!editing || (editing && edit_id != checklist.id)">
+                    <div v-if="checklist.is_public">
+                        <p><strong><h5>${checklist.title}</h5></strong></p>
+                        <p>${checklist.memo}</p>
+                    </div>
+                    {{if auth.user:}}
+                    <div v-if="checklist.user_email == '{{=auth.user.email}}' && !checklist.is_public">
+                        <p><strong><h5>${checklist.title}</h5></strong></p>
+                        <p>${checklist.memo}</p>
+                    </div>
+                    {{pass}}
+                </div>
+
+                {{if auth.user:}}
+                <div v-if="checklist.user_email == '{{=auth.user.email}}'">
+                    <i class="fa fa-edit fa-lg" v-on:click="edit_checklist(checklist.id)"></i>
+                    <i class="fa fa-trash fa-lg" v-on:click="delete_track(checklist.id)"></i>
+                    <i v-if="checklist.is_public" v-on:click="toggle_public(checklist._idx)" class="fa fa-users"></i>
+                    <i v-if="!checklist.is_public" v-on:click="toggle_public(checklist._idx)" class="fa fa-user"></i>
+                </div>
+                {{pass}}
+            </div>
+        </div>
+        <div v-if="has_more" class="show_more">
+            <button class="btn btn-default" v-on:click="get_more()">Load more</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

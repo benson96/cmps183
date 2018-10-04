@@ -1,0 +1,102 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  var upload_image_url = "{{=URL('api', 'upload_image')}}";
+  var images_url = "{{=URL('api', 'get_user_images')}}";
+  var get_users_url = "{{=URL('api', 'get_users')}}";
+</script>
+
+
+{{end}}
+
+<div class="main_content">
+
+  {{if auth.user is not None:}}
+
+  <div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+    
+
+    <div class="container padded">
+
+      <div class="image_space threequarters">
+        <!-- Left part of the page -->
+
+        <!--Show a message upon initial page load-->
+        <div v-if="!displaying">
+          <h1>Select a user to see their pics!</h1>
+        </div>
+        <div v-if="self_page && displaying">
+          <!-- Code to upload files, with control buttons -->
+          <div id="uploader_div" style="display:none">
+            Upload an image file: <input id="file_input" type="file" v-on:change="upload_file" accept="image/jpeg">
+          </div>
+
+          <button v-if="!is_uploading" 
+                  v-if="self_page"
+                  v-on:click="open_uploader">
+                    <i class="fa fa-plus"></i>
+          </button>
+          <button v-if="is_uploading"  v-on:click="close_uploader">Cancel</button>
+        </div>
+
+        <div v-if="displaying" class="image_container">
+          <!-- Put here the code to display the images -->
+
+          <ul class="container">
+            
+            <!-- The following is an example-->
+            <li v-for="image in user_images" class="card lifted padded quarter">
+              <img v-bind:src="image.image_url" height="200px" width="200px" class="padded"/>
+              
+            </li>
+
+            <h3 v-if="user_images.length == 0">Hmm, there don't seem to be any images for this user!</h3>
+
+            <button v-if="has_more" v-on:click="get_more()">
+              Load more
+            </button>
+          </ul>
+        </div>
+      </div>
+
+      <div class="user_space quarter right">
+        <!-- Right part of the page -->
+        <table class="fill" id="user_selector">
+          <tbody>
+
+            <tr class="center">
+              <!-- This row is you; code for getting your own images, and for setting self_page -->
+              <td v-on:click="show_other_images({{=auth.user.id}}, {{=auth.user.id}})">{{=auth.user.first_name}} {{=auth.user.last_name}} (you)</td>
+            </tr>
+
+            <!-- Then, one row for each person. -->
+            <tr v-for="user in users" class="center">
+              <td v-on:click="show_other_images(user.id, {{=auth.user.id}})">
+                ${user.first_name} ${user.last_name}
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        
+
+      </div>
+
+    
+  </div>
+
+  {{else:}}
+    <div class="container padded" id="not_logged_in">
+      <h1>Please log in to use our services.</h1>
+    </div>
+
+  {{pass}}
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

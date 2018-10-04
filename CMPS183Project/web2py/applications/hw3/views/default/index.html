@@ -1,0 +1,197 @@
+{{extend 'layout.html'}} {{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+    var initial_memo_url = "{{=URL('api', 'get_memo')}}";
+    var add_memo_url = "{{=URL('api', 'add_memo', user_signature=True)}}";
+    var delete_memo_url = "{{=URL('api', 'delete_memo', user_signature=True)}}";
+    var edit_memo_url = "{{=URL('api', 'edit_memo', user_signature=True)}}";
+    var toggle_edit_url = "{{=URL('api', 'toggle_edit_status', user_signature=True)}}";
+    var toggle_public_url = "{{=URL('api', 'toggle_public', user_signature=True)}}";
+</script> {{end}}
+
+<div class="main_content">
+
+    <div id="vue-div" class="display:none">
+        {{if auth.user is not None:}}
+        
+        <ul>
+            <li v-for="memo in checklist">
+                <div v-if="memo.user_email == user_email"> 
+                <div class="memo">
+
+
+                    <div v-if="!memo.is_editing" class="memo_text">
+                        <div class="memo_title">${memo.title}</div>
+                        <div class="memo_content">${memo.memo}</div>
+                    </div>
+
+                    <div v-else class="form2">
+                        <p>title is: ${form_title}</p>
+                        <input v-model="form_title">
+                        <p>memo is: ${form_memo}</p>
+                        <input v-model="form_memo">
+                        <div class="button_bar">
+                            <button class="btn" v-on:click="cancel_edit(memo._idx)">
+                                Cancel
+                            </button>
+                            <button class="btn" v-on:click="edit_submit_button(memo._idx)">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="button_list">
+                            <div class="buttons">
+                                <div v-if="!is_adding_memo && !is_editing">
+                                    <a class="btn rounded" v-on:click="toggle_public(memo._idx)">
+                                        <div v-if="!memo.is_public">
+                                            <i class="fa fa-user fa-lg"></i>
+                                        </div>
+                                        <div v-else>
+                                            <i class="fa fa-users fa-lg"></i>
+                                        </div>
+                                    </a>
+                                    <a class="btn rounded" v-on:click="delete_track(memo._idx)">
+                                        <i class="fa fa-trash fa-lg"></i>
+                                    </a>
+                                    <a class="btn rounded" v-on:click="toggle_edit_status(memo._idx)">
+                                        <i class="fa fa-edit fa-lg"></i>
+                                    </a>
+                                </div>
+                                <div v-else>
+                                    <a class="btn rounded disabled disabled-icon">
+                                        <div v-if="!memo.is_public">
+                                            <i class="fa fa-user fa-lg"></i>
+                                        </div>
+                                        <div v-else>
+                                            <i class="fa fa-users fa-lg"></i>
+                                        </div>
+                                    </a>
+                                    <a class="btn rounded disabled disabled-icon">
+                                        <i class="fa fa-trash fa-lg"></i>
+                                    </a>
+                                    <a class="btn rounded disabled disabled-icon">
+                                        <i class="fa fa-edit fa-lg"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div> 
+                </div>
+            </li>
+        </ul>
+        <div v-if="checklist.length != 0">
+        <h2>Other users' memos</h2>
+        </div>
+        <ul>
+                <li v-for="memo in checklist">
+                    <div v-if="memo.is_public && memo.user_email != user_email">
+                        <div class="memo">
+                            <div class="memo_text">
+                                <div class="memo_title">${memo.title}</div>
+                                <div class="memo_content">${memo.memo}</div>
+                            </div>
+    
+                            <div>
+                                <div class="button_list">
+                                    <div class="buttons">
+    
+                                        <a class="btn rounded disabled disabled-icon">
+                                            <i class="fa fa-users fa-lg"></i>
+                                        </a>
+                                        <a class="btn rounded disabled disabled-icon">
+                                            <i class="fa fa-trash fa-lg"></i>
+                                        </a>
+                                        <a class="btn rounded disabled disabled-icon">
+                                            <i class="fa fa-edit fa-lg"></i>
+                                        </a>
+    
+                                    </div>
+    
+                                </div>
+    
+                            </div>
+    
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        <div class="form" style="display: none">
+            <p>title is: ${form_title}</p>
+            <input v-model="form_title">
+            <p>memo is: ${form_memo}</p>
+            <input v-model="form_memo">
+            <div class="button_bar">
+                <button class="btn" v-on:click="cancel_add()">
+                    Cancel
+                </button>
+                <button class="btn" v-on:click="submit_button()">
+                    Submit
+                </button>
+            </div>
+        </div>
+        <div>
+            <div v-if="has_more" class="show_more">
+                <button class="btn btn-default rounded" v-on:click="get_more()">
+                    <i class="fa fa-ellipsis-h"></i>
+                    Load more
+                </button>
+            </div>
+            <div class="button_bar">
+                <button class="btn" v-on:click="add_memo_button()">
+                    <i class="fa fa-plus"></i> Add Memo
+                </button>
+            </div>
+        </div>
+
+        {{else:}}
+        <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+        <h4>Welcome to this stupid memo keeping site. <br> Login in to create or edit your own memo. <br>Below is other people's memo</h4>
+        <div class="login_button">
+            <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
+        </div>
+
+        <ul>
+            <li v-for="memo in checklist">
+                <div v-if="memo.is_public">
+                    <div class="memo">
+                        <div class="memo_text">
+                            <div class="memo_title">${memo.title}</div>
+                            <div class="memo_content">${memo.memo}</div>
+                        </div>
+
+                        <div>
+                            <div class="button_list">
+                                <div class="buttons">
+
+                                    <a class="btn rounded disabled disabled-icon">
+                                        <i class="fa fa-users fa-lg"></i>
+                                    </a>
+                                    <a class="btn rounded disabled disabled-icon">
+                                        <i class="fa fa-trash fa-lg"></i>
+                                    </a>
+                                    <a class="btn rounded disabled disabled-icon">
+                                        <i class="fa fa-edit fa-lg"></i>
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </li>
+        </ul>
+        {{pass}}
+    </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

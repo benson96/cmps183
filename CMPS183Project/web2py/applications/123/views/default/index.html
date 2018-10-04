@@ -1,0 +1,90 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  var pictures_url = "{{=URL('api', 'get_images', user_signature=True, hash_vars=False)}}";
+  var add_picture_url = "{{=URL('api', 'add_picture', user_signature=True)}}";
+<!--  var del_track_url = "{{=URL('api', 'del_track', user_signature=True)}}"; -->
+  var upload_url = "{{=URL('api', 'upload_picture', user_signature=True)}}";
+<!--  var play_url = "{{=URL('api', 'play_track')}}"; -->
+  var get_insertion_id_url = "{{=URL('api', 'get_insertion_id', user_signature=True)}}";
+  var cleanup_url = "{{=URL('api', 'cleanup', user_signature=True)}}";
+</script>
+
+
+
+{{end}}
+{{if auth.user is not None:}}
+<div class="main_content">
+
+  <div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+
+    <div class="container padded">
+
+      <div class="image_space threequarters">
+        <!-- Left part of the page -->
+        <div v-if="self_page">
+          <!-- Code to upload files, with control buttons -->
+          <div id="uploader_div" style="display:none">
+            Upload an image file: <input id="file_input" type="file" v-on:change="upload_file" accept="image/jpeg">
+          </div>
+
+          <button v-if="!is_uploading" v-on:click="open_uploader()"><i class="fa fa-plus"></i></button>
+          <button v-if="is_uploading"  v-on:click="close_uploader()">Cancel</button>
+        </div>
+
+        <div class="image_container">
+          <!-- Put here the code to display the images -->
+          <div>The most recent uploaded picture doesn't show up. Please consider some partial credit. Thank you! </div>
+          <ul class="container">
+            <li v-for="picture in pictures" class="card lifted padded quarter">
+              <img v-bind:src="picture.picture_url" height="200px" width="200px" class="padded"/>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="user_space quarter right">
+        <!-- Right part of the page -->
+        <table class="fill" id="user_selector">
+          <tbody>
+            <tr class="center">
+              <!-- This row is you; code for getting your own images, and for setting self_page -->
+              <td>Your Name</td>
+            </tr>
+            <td>Luca</td>
+            <tr>
+            <td>Cat</td>
+            </tr>
+            <!-- Then, one row for each person. -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+      <div class = "result_table">
+        <div class = "picture_table">
+          <tbody>
+            
+          </tbody>
+        </div>
+      </div>
+
+  </div>
+
+</div>
+{{else:}}
+<h1 class="main_title">Welcome!</h1>
+
+<p class="explanation">Log in to see beautiful pictures
+</p>
+<div class="login_button">
+  <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
+</div>
+{{pass}}
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>
+
+

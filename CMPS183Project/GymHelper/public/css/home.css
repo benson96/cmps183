@@ -1,0 +1,61 @@
+strong{
+  color:White;
+  font-size: 4em;
+}
+/* header{
+  font-family: 'Bitter', serif;
+
+  margin: auto;
+  border-radius: 25px;
+  background-color: blue;
+  background-color: #245554;
+} */
+.home{
+  background-color: #ff5a00;
+  font-family: 'Bitter', serif;
+  color: white;
+  width: 50%;
+  margin: 100px auto;
+  text-align: center;
+  border-radius: 25px;
+  opacity: 0.8;
+}
+.btn{
+  overflow: none;
+  background: #31263e;
+  color: white;
+  border-radius: 25px;
+}
+.container{
+  font-family: 'Bitter', serif;
+  color: white;
+  width: 80%;
+  margin: 100px auto;
+}
+.ttt{
+  background-image: url("../images/home/help.jpg")
+  center center fixed;
+
+}
+.home-Header{
+  font-size: 2em;
+  background-image: url("../images/home/help.jpg")
+  center center fixed;
+}
+/* .tst{
+    color: black;
+    text-align: center;
+    background-color: #ff5a00;
+    width: 50%;
+    margin: 100px auto;
+    border-radius: 25px;
+} */
+body{
+  /* background-color: #245554; */
+  background: url("../images/header.jpeg")
+    no-repeat center center fixed;
+    background-size: cover;
+}
+.col-xs-12 img{
+  width: 100%;
+}

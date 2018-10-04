@@ -1,0 +1,105 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+    var memos_url = "{{=URL('api', 'get_memos')}}";
+    var add_memos_url = "{{=URL('api', 'add_memos', user_signature=True)}}";
+    var del_memos_url = "{{=URL('api', 'del_memos', user_signature=True)}}";
+    var toggle_memos_url = "{{=URL('api', 'tog_memos', user_signature=True)}}";
+    var edit_memos_url = "{{=URL('api', 'edit_memos', user_signature=True)}}";
+</script>
+{{end}}
+
+<div class="main_content">
+
+    <div id="vue-div" class="display:none">
+
+        <!-- ADD AND CANCEL BUTTONS -->
+         <div class="button_bar">
+                <div v-if="logged_in">
+                    <button v-if="!is_adding_memo" class="btn btn-danger btn-sm" v-on:click="add_memo_button()">Add memo</button>
+                    <button v-if="is_adding_memo" class="btn btn-warning btn-sm" v-on:click="add_memo_button()">Cancel</button>
+                </div>
+             <div v-if="!logged_in">
+                    <a v-if="!is_adding_memo" class="btn btn-sm" style="background-color: grey" v-on:click="add_memo_button()">Add memo</a>
+             </div>
+         </div>
+
+        <!-- FORM FOR ADDING A NEW MEMO -->
+        <div v-if="is_adding_memo" id="add_memo_div">
+            <form action="#" v-on:submit.prevent="add_memo" class="form-horizontal" enctype="multipart/form-data" method="post">
+                <div class="form-group">
+                    <div>
+                        <input class="form-control string" id="memo_title" v-model="form_title" placeholder="Title" type="text" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <input class="form-control string" id="memo_text" name="text" type="text" v-model="form_text" placeholder="Text"/>
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <input class="btn btn-primary" id="add_memo_submit" type="submit" value="Submit" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+        <!--*************MAIN MEMO LOOP************ -->
+        <div v-for="m in memos">
+            <div class="memo">
+                <div class="memo_text">
+                    <div class="memo_title">${m.title}</div>
+                    <div class="memo_content">${m.memo_text}</div>
+                </div>
+                <div class="button_list" v-if="logged_in">
+                    <!-- ONLY ADDS BUTTONS TO UI IF USER IS ALLOWED -->
+                    <div v-if="m.made_by_user">
+                        <button v-if="m.is_public" class="fa fa-users fa-lg" v-on:click="toggle_memo(m.id)"></button>
+                        <button v-if="!m.is_public" class="fa fa-user fa-lg" v-on:click="toggle_memo(m.id)"></button>
+                        <button class="fa fa-trash fa-lg" v-on:click="delete_memo(m.id)"></button>
+                        <button class="fa fa-edit fa-lg" v-on:click="edit_memos(m.id)"></button>
+                        <div v-if="m.is_being_edited">
+                             <button class="btn btn-warning btn-sm" v-on:click="cancel_edit(m.id)">Cancel</button>
+                             <form action="#" v-on:submit.prevent="submit_edit(m.id)" class="form-horizontal" enctype="multipart/form-data" method="post">
+                                <div class="form-group">
+                                    <div >
+                                        <input class="form-control string" id="memo_title" v-model="form_edit_title" type="text"  />
+                                        <span class="help-block"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div>
+                                        <input class="form-control string" id="memo_text" name="text" type="text" v-model="form_edit_text"/>
+                                        <span class="help-block"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div>
+                                        <input class="btn btn-primary" id="add_memo_submit" type="submit" value="Submit" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ADDS MORE IF THE USER HAS MORE TO OFFER -->
+        <div v-if="has_more" class="show_more">
+            <button class="btn btn-default rounded" v-on:click="get_more()">
+            <i class="fa fa-ellipsis-h"></i>
+            Load more
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

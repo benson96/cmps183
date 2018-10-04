@@ -1,0 +1,118 @@
+header{
+    padding-top: 2%;
+    background-color: rgb(8, 46, 90);
+}
+
+footer{
+    padding-top: 5%;
+}
+
+#main{
+    padding: 2% 2% 2% 2%;
+}
+
+#date{
+    color: white;
+    position: absolute;
+    bottom: 25%;
+    right: 2%;
+}
+
+#logo{
+    width: 20%;
+    height: auto;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    padding-top: 3%;
+}
+
+.positioned{
+    position: relative;
+}
+
+#title{
+    max-width: 700px;
+    text-align: left;
+}
+#ending{
+    background-color: rgb(8, 46, 90);
+    height: 100px;
+    width: 100%; 
+}
+
+.centerize{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 50px;
+    width: 800px;
+    height: auto;
+}
+
+.resize{
+    width: 600px;
+    height: auto;
+}
+
+#headline{
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.author{
+    font-size: 80%;
+    margin-top: 2%;
+}
+
+@media only screen and (max-width: 600px) {
+    .side {
+        margin: 0 auto;
+    }
+}
+
+.footer-link {
+    max-width: 296px;
+    margin-right: 4%;
+}
+
+.footer-link:last-child{
+    margin-right: 0%;
+}
+
+@media only screen and (max-width: 1011px){
+    .footer-link{
+        margin-right: 0%;
+    }
+}
+
+.padding-left {
+    padding-left: 5% !important;
+}
+
+p{
+    text-align: justify;
+}
+
+hr{
+    border-right: medium none;
+    border-top: #cccccc 1px solid; 
+    border-left: medium none;
+    border-bottom: medium none; 
+    height: 1px;
+}
+
+#maitra{
+    height: 174px;
+    background-color: rgb(214, 15, 138);
+    position: relative;
+    max-width: 296px;
+}
+
+.image-align{
+  position: absolute;
+  top: 50%;
+  height: 100px;
+  margin-top: -50px
+}

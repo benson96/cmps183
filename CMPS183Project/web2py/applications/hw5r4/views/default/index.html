@@ -1,0 +1,107 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script src="https://checkout.stripe.com/checkout.js"></script>
+<script>
+  var images_url = "{{=URL('api', 'get_images', user_signature=True, hash_vars=False)}}";
+  var users_url = "{{=URL('api', 'get_users', hash_vars=False)}}";
+  var user_images_url = "{{=URL('api', 'get_user_images', hash_vars=False)}}";
+  var cart_images_url = "{{=URL('api', 'get_cart_images', hash_vars=False)}}";
+  var add_image_url = "{{=URL('api', 'add_image', user_signature=True)}}";
+  var set_price_url = "{{=URL('api', 'set_price', user_signature=True)}}";
+  var del_image_url = "{{=URL('api', 'del_image', user_signature=True)}}";
+  var purchase_url = "{{=URL('default', 'purchase', hmac_key=session.hmac_key)}}"
+</script>
+
+
+{{end}}
+
+<div class="main_content">
+
+  <div id="vue-div" class="display:none">
+    <div class="container padded">
+      <div class="image_space threequarters" v-if="!is_checkout">
+        <!-- Left part of the page -->
+        {{if auth.user:}}
+            <div v-if="self_page">
+              <!-- Code to upload files, with control buttons -->
+              <div id="uploader_div" style="display:none">
+                Upload an image file: <input id="file_input" type="file" accept="image/jpeg" /><br/>
+                Price: <input id="price_input" type="number" min="0" step="0.01" v-model="image_price"/><br/>
+                <button v-on:click="upload_file"><i class="fa fa-check"></i> Submit</button>
+                <button v-on:click="close_uploader">Cancel</button>
+              </div>
+
+              <button v-if="!is_uploading" v-on:click="open_uploader"><i class="fa fa-plus"></i></button>
+            </div>
+        {{pass}}
+
+        <div class="image_container">
+          <ul class="container">
+              <li v-for="image in images" class="card lifted padded quarter">
+                  <img v-bind:src="image.image_url" height="200px" width="200px" class="padded" /><br/>
+                  <span style="padding-left: 21px;"><div v-if="!is_editing || selected_id != image.id" id="price" style="display: inline-block">$${image.price}
+                  {{if auth.user:}}
+                    <button v-on:click="edit_price_button(image._idx)" v-if="image.user_email == '{{=auth.user.email}}'"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></button>
+                    <button v-on:click="delete_image(image._idx)" v-if="image.user_email == '{{=auth.user.email}}'"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></button>
+                    <button v-on:click="add_cart(image.id)" v-if="image.user_email != '{{=auth.user.email}}' && !is_cart(image.id)"><i class="fa fa-shopping-cart fa-lg" aria-hidden="true"></i></button>
+                    <button v-on:click="rmv_cart(image.id)" v-if="image.user_email != '{{=auth.user.email}}' && is_cart(image.id)"><i class="fa fa-check fa-lg" aria-hidden="true"></i><i class="fa fa-shopping-cart fa-lg" aria-hidden="true"></i></button>
+                  {{pass}}
+                  </div>
+                  <div v-if="is_editing && selected_id==image.id" style="display: inline-block">
+                  <input v-model="edit_form_price" type="number" min="0" step="0.01" />
+                  <button v-on:click="set_price(image._idx)"><i class="fa fa-check fa-lg" aria-hidden="true"></i></button>
+                  <button v-on:click="cancel_edit_price()"><i class="fa fa-times fa-lg"></i></button></div></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CART STARTS HERE -->
+      <div class="threequarters" v-if="is_checkout" id="cart_list">
+          <div v-if="cart.length == 0" align="center">
+              <h6>Cart is Empty.</h6>
+          </div>
+          <div class="image_container">
+              <ul class="container">
+                  <li v-for="image in images" class="card lifted padded quarter">
+                      <img v-bind:src="image.image_url" height="200px" width="200px" class="padded" /><br/>
+                      <span style="padding-left: 21px;">$${image.price} (By: ${image.user_name})</span>
+                </li>
+              </ul>
+          </div>
+          <div align="right" v-if="cart.length != 0">
+            <h3>Sum of price: $${checkout_sum}</h3><br/>
+            <button v-if="cart" v-on:click="pay()"><i class="fa fa-check"></i> Confirm Purchase</button>
+          </div>
+      </div>
+
+      <div class="user_space quarter right">
+        <!-- Right part of the page -->
+        {{if auth.user:}}
+          <button v-on:click="checkout"><i class="fa fa-credit-card-alt" aria-hidden="true"></i> CHECKOUT</button><br/>
+        {{pass}}
+        <table class="fill" id="user_selector">
+          <tbody>
+            {{if auth.user:}}
+            <tr class="center">
+              <!-- This row is you; code for getting your own images, and for setting self_page -->
+              <td v-on:click="get_images">{{=auth.user.first_name}} {{=auth.user.last_name}}</td>
+            </tr>
+            {{pass}}
+            <!-- Then, one row for each person. -->
+            <tr v-for="user in users">
+                <td v-on:click="get_user_images(user.user_email)">${user.user_name}</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
+  </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

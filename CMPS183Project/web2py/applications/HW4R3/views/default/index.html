@@ -1,0 +1,73 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  var get_images_url = "{{=URL('api', 'get_user_images')}}";
+  var add_url = "{{=URL('api', 'add_image', user_signature=True)}}";
+</script>
+
+
+{{end}}
+
+<div class="main_content">
+
+  {{if auth.user is None:}}
+
+    <h1 class="main_title">Welcome!</h1>
+
+    <p class="explanation">This site lets people share their images with each other.  Please log in to use it.</p>
+
+    <div class="login_button">
+      <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
+    </div>
+
+  {{else:}}
+
+    <div id="vue-div" class="display:none">
+      <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+      <div class="container padded">
+
+        <div class="image_space threequarters">
+          <!-- Left part of the page -->
+          <div v-if="curr_idx == 0">
+            <!-- Code to upload files, with control buttons -->
+            <div id="uploader_div" style="display:none">
+              Upload an image file: <input id="file_input" type="file" v-on:change="upload_file" accept="image/jpeg">
+            </div>
+
+            <button v-if="!is_uploading" v-on:click="open_uploader"><i class="fa fa-plus"></i></button>
+            <button v-if="is_uploading"  v-on:click="close_uploader">Cancel</button>
+          </div>
+
+          <div class="image_container">
+            <!-- Code to display the images -->
+            <ul class="container">
+              <li v-for="image in users[curr_idx].images" class="card lifted padded quarter">
+                <img v-bind:src="image" height="200px" width="200px" class="padded"/>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="user_space quarter right">
+          <!-- Right part of the page -->
+          <table class="fill" id="user_selector">
+            <tbody>
+                <tr v-for="u in users" class="center" v-on:click="set_user(u._idx)">
+                  <td>${u.first_name}</td>
+                </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+  {{pass}}
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

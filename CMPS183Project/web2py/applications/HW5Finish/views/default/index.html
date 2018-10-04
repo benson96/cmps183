@@ -1,0 +1,107 @@
+{{extend 'layout.html'}}
+{{block head}}
+<script>
+    function replaceAll(str, find, replace) {
+        return str.replace(new RegExp(find, 'g'), replace);
+    }
+    var logged_in = {{=logged_in}};
+    var email = "{{=email}}";
+    var user_id = "{{=user_id}}";
+    var user_list_json = "{{=user_list_json}}"
+    var user_list = JSON.parse(replaceAll(user_list_json, '&quot;', '"'))
+    var add_image_url = "{{=URL('api', 'add_image')}}";
+    var get_user_images_url = "{{=URL('api', 'get_user_images')}}";
+    var update_image_url = "{{=URL('api', 'update_image')}}";
+
+</script>
+
+{{end}}
+<div id="vue-div" class="display:none">
+  <v-app>
+    <v-content>
+      <div>Tips: 1. Double click image to edit price.</div>
+       <div>  2. Checkout doesn't work. Please consider some partial credit.</div>
+      <div> Thank you very much!</div>
+      <v-container>
+
+        <v-layout row wrap>
+          <v-flex xs12>
+            <v-layout row wrap>
+              <v-flex xs9 >
+                <v-layout row wrap  >
+                  <v-flex xs12 class="text-xs-center" v-if="selected_user.id == user_id">
+                      <v-btn icon color="#004D40" @click="!is_uploading ? open_uploader() : close_uploader()">
+
+                        <v-btn flat icon color="teal darken-4" v-if="!is_uploading">Upload Image</v-btn>
+
+                        <v-btn flat icon color="teal darken-2" v-else="is_uploading">Cancel</v-btn>
+                      </v-btn>
+                      <div id="uploader_div" style="display:none">
+                        Upload an image file:
+                        <input id="file_input" type="file" @change="fileChange($event)" accept="image/jpeg">
+                        <v-text-field v-model="price" box label="Price"></v-text-field>
+                        <v-btn flat icon color="blue lighten-2" @click="upload_file" >Submit</v-btn>
+                      </div>
+                    </span>
+                  </v-flex>
+                  <v-flex xs3 v-for="(img, i) in show_img_list" :key="i" v-if="i < 20">
+                    <v-card style="height: 200px" @click.native="editPrice(img)">
+                      <v-card-media
+                        contain
+                        :height="edit_id!=img.id ? '200px' : '200px'"
+                        :src="img.image_url">
+                      </v-card-media>
+                    </v-card>
+                    <v-card-title>
+                      <v-layout row wrap v-if="edit_id!=img.id">
+                        <v-flex xs6 class="text-xs-left">
+                          <v-btn icon @click.stop="select(img)"><v-icon color="blue lighten-2">fa-shopping-cart</v-icon></v-btn>
+                        </v-flex>
+                      </v-layout>
+                      <v-layout row wrap v-else>
+                        <v-flex xs6 class="text-xs-left">
+                          <v-btn icon @click.stop="edit_id=null; update_image(img.id);"><v-icon color="blue lighten-2">save</v-icon></v-btn>
+                        </v-flex>
+                        <v-flex xs6 class="text-xs-right">
+                          <v-btn icon @click.stop="edit_id=null"><v-icon color="blue lighten-2">delete</v-icon></v-btn>
+                        </v-flex>
+                      </v-layout>
+                      <div class="title text-xs-right" v-if="edit_id!=img.id">Price: $${img.price}</div>
+                      <div class="text-xs-center" v-else>
+                        <v-layout row wrap>
+                          <v-flex xs12>
+                            <v-text-field v-model="edit_price" box label="Price"></v-text-field>
+                          </v-flex>
+                        </v-layout>
+                      </div>
+                      </v-card-title>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+              <v-flex xs3 class="text-xs-center">
+               <v-btn flat icon color="blue lighten-2"  @click="cartDialog = true">
+                 <v-icon>fa fa-shopping-cart</v-icon>
+                 Checkout
+               </v-btn>
+                <v-list class="elevation-3">
+                  <span v-for="(user, i) in user_list" :key="i">
+                    <v-list-tile @click="selected_user = user">
+                      <v-list-tile-content>
+                        <v-list-tile-title>
+                          ${(user.first_name + ' ' + user.last_name)}
+                        </v-list-tile-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                    <v-divider></v-divider>
+                  </span>
+                </v-list>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-content>
+  </v-app>
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

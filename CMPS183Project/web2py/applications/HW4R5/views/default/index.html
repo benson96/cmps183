@@ -1,0 +1,92 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
+<script>
+  // Define your URLs here.
+  var login_url = "{{ =URL( 'default', 'user', user_signature=True) }}";
+  var login_state_url = "{{ =URL( 'api', 'login_state', user_signature=True) }}";
+  var get_users_url = "{{ =URL( 'api', 'get_users', user_signature=True) }}";
+  var get_images_url = "{{ =URL('api', 'get_images', user_signature=True) }}";
+  var add_image_url = "{{ =URL('api', 'add_image', user_signature=True) }}";
+</script>
+
+
+{{end}}
+
+<div class="main_content">
+
+  <div id="vue-div" class="display:none">
+    <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+
+    <!--
+      USER is logged in
+    -->
+
+    <div v-if="logged_in" class="container padded">
+
+      <div class="image_space threequarters">
+        <!-- Left part of the page -->
+        <div v-if="self_page">
+          <!-- Code to upload files, with control buttons -->
+          <div id="uploader_div" style="display:none">
+            Upload an image file: <input id="file_input" type="file" v-on:change="upload_file" accept="image/jpeg">
+          </div>
+
+          <button v-if="!is_uploading" v-on:click="open_uploader"><i class="fa fa-plus"></i></button>
+          <button v-if="is_uploading"  v-on:click="close_uploader">Cancel</button>
+        </div>
+
+        <div class="image_container">
+          <!-- Put here the code to display the images -->
+
+          <ul class="container">
+            <li v-for="image in images" class="card lifted padded quarter">
+              <img v-bind:src="image.get_url" height="200px" width="200px" class="padded"/>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="user_space quarter right">
+        <!-- Right part of the page -->
+        <table class="fill" id="user_selector">
+          <tbody>
+            <tr v-for="user in users" v-on:click="select_user(user.id)" class="user_entry">
+              <!-- This row is you; code for getting your own images, and for setting self_page -->
+              <td>
+                ${user.first_name}
+              </td>
+            </tr>
+            <!-- Then, one row for each person. -->
+          </tbody>
+        </table>
+
+      </div>
+
+  </div>
+
+  <!--
+    USER is logged out
+  -->
+
+  <div v-if="!logged_in" class="logged_out">
+    <div class="welcome_container">
+      <h1 class="welcome_text"> Photo Upload App </h1>
+    </div>
+    <div class="welcome_body_container">
+      <p class="welcome_body">
+        Welcome to the app! Please login or signup to use the features.
+      </p>
+    </div>
+    <div class="login_button_container">
+      <a class="login_button" id="login_link">
+        login
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>
